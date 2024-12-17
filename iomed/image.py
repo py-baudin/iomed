@@ -16,7 +16,7 @@ def load(obj, **kwargs):
 
 
 def save(file, image, ext=None):
-    if not isinstance(image, image):
+    if not isinstance(image, Image):
         raise ValueError(f'Expected Image object, not {type(image)}')
     image.save(file, ext=ext)
 
