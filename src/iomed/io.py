@@ -3,7 +3,10 @@ import numpy as np
 
 
 def write_volume(filename, array, *, spacing=None, origin=None, transform=None, metadata=None, use_compression=True):
-    im = sitk.GetImageFromArray(array)
+    array = np.asarray(array)
+    if np.issubdtype(array.dtype, np.bool):
+        array = array.astype('uint8')
+    im = sitk.GetImageFromArray(array.T)
     if spacing is not None:
         im.SetSpacing(spacing)
     if origin is not None:
@@ -19,7 +22,7 @@ def write_volume(filename, array, *, spacing=None, origin=None, transform=None, 
 def read_image(filename):
     im = sitk.ReadImage(filename)
 
-    array = sitk.GetArrayFromImage(im)
+    array = sitk.GetArrayFromImage(im).T
     spacing = im.GetSpacing()
     origin = im.GetOrigin()
     transform = im.GetDirection()

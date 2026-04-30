@@ -53,7 +53,7 @@ def tovolume(values, mask=None, *, ref=None, **kwargs) -> Volume:
     elif ref is None:
         vol = asvolume((0 * mask).astype(values.dtype))
     else:
-        vol = asvolume((0 * ref).astype(values.dtype))
+        vol = asvolume((0 * ref.real).astype(values.dtype))
 
     if mask is not None:
         mask = np.asarray(mask) > 0
