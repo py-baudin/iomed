@@ -26,6 +26,7 @@ vol.transform # -> tuple[tuple[float]]
 vol.metadata # -> dict[str, str]
 
 # other attributes
+vol.header # -> dict of spacing, origin, transform and metadata
 vol.A # -> np.ndarray
 vol.affine # -> affine transform
 vol.anatomical_orientation # ex. RAI ("from" convention)
@@ -43,7 +44,9 @@ vol.get_indices(coords)
 # utilities
 
 # create volume, copy header
-vol2 = volume.asvolume(array, ref=vol) 
+vol2 = volume.asvolume(array, ref=vol)
+# equivalent to: vol2 = volume.Volume(array, **vol.header) 
+
 
 # create volume, fill foreground values
 vol2 = volume.tovolume(values, mask=mask) 
