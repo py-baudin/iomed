@@ -41,7 +41,7 @@ def read(filename, *, nan_as=None, as_complex=False):
 
 # utilities
 
-def asvolume(obj, **kwargs) -> Volume:
+def asvolume(obj, ref=None, **kwargs) -> Volume:
     return Volume(obj, **kwargs)
 
 
