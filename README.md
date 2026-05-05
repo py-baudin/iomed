@@ -60,14 +60,14 @@ vol2 = volume.tovolume(values, mask=mask)
 from iomed import config
 
 # read yaml / json files
-cfg = config.read('config.yml') # -> dict/list
+cfg = config.read('config.yml') # -> dict
 
 # write 
 config.write('config.yml', config)
 
 ```
 
-# ITK-Snap label files
+## ITK-Snap label files
 
 ```python
 from iomed import labelfile
