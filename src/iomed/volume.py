@@ -42,6 +42,9 @@ def read(filename, *, nan_as=None, as_complex=False):
 # utilities
 
 def asvolume(obj, ref=None, **kwargs) -> Volume:
+    if ref is not None:
+        ref = asvolume(ref, **kwargs)
+        return Volume(obj, **ref.header)
     return Volume(obj, **kwargs)
 
 
@@ -191,6 +194,10 @@ class Volume(np.ndarray):
     @property
     def affine(self):
         return make_affine_transform(self.origin, self.spacing, self.transform)
+    
+    @property
+    def header(self):
+        return self._get_volume_attrs(self)
 
     @property
     def anatomical_orientation(self) -> str:
