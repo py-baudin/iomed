@@ -4,7 +4,7 @@ from __future__ import annotations
 import pathlib
 import numpy as np
 import numpy.typing as npt
-from . import io
+from . import iovolume
 
 DEFAULT_EXT = '.nii.gz'
 
@@ -25,12 +25,12 @@ def write(filename, vol, *, nan_as=None, geometry=None, use_compression=True):
         filename = filename.with_suffix(DEFAULT_EXT)
 
     wrtopts = dict(spacing=vol.spacing, origin=vol.origin, transform=vol.transform, use_compression=use_compression)
-    io.write_volume(filename, vol, **wrtopts)
+    iovolume.write_volume(filename, vol, **wrtopts)
 
 
 def read(filename, *, nan_as=None, as_complex=False):
     """ read Volume """
-    array, header = io.read_image(filename)
+    array, header = iovolume.read_image(filename)
     if nan_as is not None:
         array[array==nan_as] = np.nan
     if as_complex and array.ndim > 3 and array.shape[0] == 2:
@@ -137,11 +137,11 @@ class Volume(np.ndarray):
         return self.view(np.ndarray)
 
     @property
-    def spacing(self) -> npt.NDArray[np.floating]:
+    def spacing(self) -> tuple[float]:
         return self._spacing
 
     @spacing.setter
-    def spacing(self, spacing: npt.NDArray[np.floating] | None) -> None:
+    def spacing(self, spacing: tuple[float] | None) -> None:
         if spacing is None:
             spacing = [1.0] * 3
         else:
@@ -151,11 +151,11 @@ class Volume(np.ndarray):
         self._spacing = tuple(float(v) for v in spacing)
 
     @property
-    def origin(self) -> npt.NDArray[np.floating]:
+    def origin(self) -> tuple[float]:
         return self._origin
 
     @origin.setter
-    def origin(self, origin: npt.NDArray[np.floating] | None) -> None:
+    def origin(self, origin: tuple[float] | None) -> None:
         if origin is None:
             origin = [0.0] * 3
         else:
@@ -165,11 +165,11 @@ class Volume(np.ndarray):
         self._origin = tuple(float(v) for v in origin)
 
     @property
-    def transform(self) -> npt.NDArray[np.floating]:
+    def transform(self) -> tuple[tuple[float]]:
         return self._orientation
 
     @transform.setter
-    def transform(self, transform: npt.NDArray[np.floating] | None) -> None:
+    def transform(self, transform: tuple[tuple[float]] | None) -> None:
         if transform is None:
             transform = np.eye(3)
         else:
