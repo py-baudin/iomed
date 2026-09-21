@@ -250,7 +250,7 @@ def interpolate(
             )
             res[mask.reshape(shape_t) > 0.5] = np.nan
 
-        results.append(volume.Volume(res, **geomt))
+        results.append(volume.Volume(res, spacing=geomt['spacing'], origin=geomt['origin'], transform=geomt['transform']))
 
     # return
     if len(sources) == 1:
