@@ -23,7 +23,9 @@ def interpolate_like(target, source, **kwargs):
     """interpolate source volume to match target volume"""
     target = volume.asvolume(target)
     source = volume.asvolume(source)
-    return interpolate(target.metadata, source.metadata, source, **kwargs)
+    target_geom = {'origin': target.origin, 'spacing': target.spacing, 'transform': target.transform, 'shape': target.shape}
+    source_geom = {'origin': source.origin, 'spacing': source.spacing, 'transform': source.transform, 'shape': source.shape}
+    return interpolate(target_geom, source_geom, source, **kwargs)
 
 
 
