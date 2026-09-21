@@ -1,5 +1,5 @@
 # coding=utf-8
-""" interpolate volumes from tags """
+""" interpolate volumes from metadata """
 
 import numpy as np
 
@@ -23,7 +23,7 @@ def interpolate_like(target, source, **kwargs):
     """interpolate source volume to match target volume"""
     target = volume.asvolume(target)
     source = volume.asvolume(source)
-    return interpolate(target.tags, source.tags, source, **kwargs)
+    return interpolate(target.metadata, source.metadata, source, **kwargs)
 
 
 
