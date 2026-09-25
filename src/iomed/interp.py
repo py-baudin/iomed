@@ -1,5 +1,5 @@
 # coding=utf-8
-""" interpolate volumes from tags """
+""" interpolate volumes from metadata """
 
 import numpy as np
 
@@ -23,7 +23,9 @@ def interpolate_like(target, source, **kwargs):
     """interpolate source volume to match target volume"""
     target = volume.asvolume(target)
     source = volume.asvolume(source)
-    return interpolate(target.tags, source.tags, source, **kwargs)
+    target_geom = {'origin': target.origin, 'spacing': target.spacing, 'transform': target.transform, 'shape': target.shape}
+    source_geom = {'origin': source.origin, 'spacing': source.spacing, 'transform': source.transform, 'shape': source.shape}
+    return interpolate(target_geom, source_geom, source, **kwargs)
 
 
 
@@ -248,7 +250,7 @@ def interpolate(
             )
             res[mask.reshape(shape_t) > 0.5] = np.nan
 
-        results.append(volume.Volume(res, **geomt))
+        results.append(volume.Volume(res, spacing=geomt['spacing'], origin=geomt['origin'], transform=geomt['transform']))
 
     # return
     if len(sources) == 1:
