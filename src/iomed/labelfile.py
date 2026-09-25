@@ -140,34 +140,60 @@ class Labels(abc.Mapping):
                 )
                 f.write(line)
 
-    def __init__(self, labels, *, allow_duplicates=False):
+    def __init__(self, labels, *, indices=None, colors=None, allow_duplicates=False):
         """init label object"""
 
         self.allow_duplicates = allow_duplicates
         self.color_gen = itertools.cycle(COLOR_MAP)
 
         if isinstance(labels, Labels):
+            # from another Labels object
             self.data = labels.data.copy()
-            return
-        elif not isinstance(labels, dict):
-            raise ValueError("A dict is required")
-        self.data = {}
-        
-        for index in sorted(labels):
-            self.set(index, labels[index])
+        elif isinstance(labels, list):
+            # from a list of descriptions
+            self.data = {}
+            for i, label in enumerate(labels):
+                self.set(i, str(label))
+        elif isinstance(labels, dict):
+            # from a dict
+            self.data = {}
+            for index, value in labels.items():
+                self.set(index, value)
+        else:
+            raise ValueError("A list or dict is required")
+
+        if indices is not None:
+            self.indices = indices
+        if colors is not None:
+            self.colors = colors
 
     @property
     def indices(self):
         return list(self.data)
+
+    @indices.setter
+    def indices(self, indices):
+        self.data = dict((new, self.data[old]) for new, old in zip(indices, self.data, strict=True))
+        self._sort()
     
     @property
     def descriptions(self):
         return list(self.data[index]['LABEL'] for index in self)
+
+    @descriptions.setter
+    def descriptions(self, descriptions):
+        for descr, label in zip(descriptions, self.data, strict=True):
+            self.data[label]['LABEL'] = descr
     
     @property
     def colors(self):
         """return dict of colors"""
         return dict((idx, self.data[idx]["RGBA"]) for idx in self)
+
+    @colors.setter
+    def colors(self, colors):
+        for color, label in zip(colors, self.data, strict=True):
+                self.data[label]['RGBA'] = color
 
     @property
     def palette(self):
@@ -181,13 +207,13 @@ class Labels(abc.Mapping):
         return palette
 
     def __repr__(self):
-        return str(self.data)
+        return str(dict(zip(self.indices, self.descriptions)))
 
     def __len__(self):
         return len(self.indices)
 
     def __iter__(self):
-        return iter(sorted(self.indices))
+        return iter(self.indices)
 
     def __eq__(self, other):
         return self.data == other.data
@@ -202,10 +228,10 @@ class Labels(abc.Mapping):
     def __setitem__(self, index, descr):
         """set label description"""
         self.set(index, descr)
-        # self.data[index]["LABEL"] = descr
 
     def __delitem__(self, index):
         del self.data[index]
+
 
     def keys(self):
         return self.data.keys()
@@ -261,14 +287,26 @@ class Labels(abc.Mapping):
             "VIS": vis,
             "MSH": meshvis,
         }
+        self._sort()
+        
         
     def pop(self, index, **kwargs):
         return self.data.pop(index, **kwargs)
 
     def getindex(self, name):
-        """return index of given name (reverse of .__getitem__)"""
+        """return first index of given name (reverse of .__getitem__)"""
         return {self.data[index]["LABEL"]: index for index in self.indices}[name]
 
     def newcolor(self, alpha=1.0):
         """return a different color every time"""
         return next(self.color_gen) + [alpha]
+
+    def reindex(self):
+        """ reindex labels and return mapping"""
+        new = list(range(len(self)))
+        old = list(self.data)
+        mapping = dict(zip(old, new))
+        return Labels(self, indices=new), mapping
+
+    def _sort(self):
+        self.data = {i: self.data[i] for i in sorted(self.data)}
